@@ -1,11 +1,12 @@
 %This Matlab script generates Figure 6(a) and Figure 6(b) in the paper:
 %
 %Emil Bjornson, Luca Sanguinetti, “Scalable Cell-Free Massive MIMO
-%Systems,” IEEE Transactions on Communications, to appear. 
+%Systems,” IEEE Transactions on Communications, vol. 68, no. 7, pp.
+%4247-4261, July 2020.
 %
 %Download article: http://arxiv.org/pdf/1908.03119
 %
-%This is version 1.0 (Last edited: 2020-04-08)
+%This is version 1.01 (Last edited: 2020-12-06)
 %
 %License: This code is licensed under the GPLv2 license. If you in any way
 %use this code for research that results in publications, please cite our
@@ -18,7 +19,7 @@ clear;
 %Select which figure to generate:
 %selectSimulationSetup = 1 gives Figure 6(a)
 %selectSimulationSetup = 2 gives Figure 6(b)
-selectSimulationSetup = 1;
+selectSimulationSetup = 2;
 
 
 %% Define simulation setup

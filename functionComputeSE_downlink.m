@@ -5,11 +5,12 @@ function [SE_MR,SE_LP_MMSE,SE_MR_perfect,SE_LP_MMSE_perfect,SE_P_MMSE,SE_P_MMSE_
 %This function was developed as a part of the paper:
 %
 %Emil Bjornson, Luca Sanguinetti, “Scalable Cell-Free Massive MIMO
-%Systems,” IEEE Transactions on Communications, to appear. 
+%Systems,” IEEE Transactions on Communications, vol. 68, no. 7, pp.
+%4247-4261, July 2020.
 %
 %Download article: http://arxiv.org/pdf/1908.03119
 %
-%This is version 1.0 (Last edited: 2020-04-08)
+%This is version 1.1 (Last edited: 2020-12-06)
 %
 %License: This code is licensed under the GPLv2 license. If you in any way
 %use this code for research that results in publications, please cite our
@@ -125,7 +126,7 @@ if nargout > 1
             
             %Compute LP-MMSE precoding
             V_MR = reshape(Hhat((l-1)*N+1:l*N,n,:),[N K]);
-            V_LP_MMSE = p*(p*(V_MR(:,servedUEs)*V_MR(:,servedUEs)'+Cserved)+eyeN)\V_MR(:,servedUEs);
+            V_LP_MMSE = p*((p*(V_MR(:,servedUEs)*V_MR(:,servedUEs)'+Cserved)+eyeN)\V_MR(:,servedUEs));
             
             %Compute scaling factor by Monte Carlo methods
             scaling_LP_MMSE(l,servedUEs) = scaling_LP_MMSE(l,servedUEs) + sum(abs(V_LP_MMSE).^2,1)/nbrOfRealizations;
@@ -160,7 +161,7 @@ if nargout > 1
                 end
                 
                 %Compute P-MMSE precoding
-                V_P_MMSE = p*(p*(Hhatallj_active(:,servedUEs)*Hhatallj_active(:,servedUEs)')+C_tot_blk_partial+eye(La*N))\Hhatallj_active(:,k);
+                V_P_MMSE = p*((p*(Hhatallj_active(:,servedUEs)*Hhatallj_active(:,servedUEs)'+C_tot_blk_partial)+eye(La*N))\Hhatallj_active(:,k));
                 
                 %Compute scaling factor by Monte Carlo methods
                 scaling_P_MMSE(k) = scaling_P_MMSE(k) + sum(abs(V_P_MMSE).^2,1)/nbrOfRealizations;
@@ -243,7 +244,7 @@ for n = 1:nbrOfRealizations
             %served by AP l
             Cserved = sum(C(:,:,l,servedUEs),4);
             
-            V_LP_MMSE = p*(p*(V_MR*V_MR'+Cserved)+eyeN)\V_MR;
+            V_LP_MMSE = p*((p*(V_MR*V_MR'+Cserved)+eyeN)\V_MR);
             
         end
         
@@ -285,13 +286,13 @@ for n = 1:nbrOfRealizations
     %Consider the centralized P-MMSE precoding scheme
     if nargout > 4
         
-                %Go through all UEs
+        %Go through all UEs
         for k = 1:K
             
-                        %Determine the set of serving APs
+            %Determine the set of serving APs
             servingAPs = find(D(:,k)==1);
-                        La = length(servingAPs);
-                        
+            La = length(servingAPs);
+            
             %Determine which UEs that are served by partially the same set
             %of APs as UE k
             servedUEs = sum(D(servingAPs,:),1)>=1;
@@ -299,17 +300,19 @@ for n = 1:nbrOfRealizations
             %Extract channel realizations and estimation error correlation
             %matrices for the APs that involved in the service of UE k
             Hhatallj_active = zeros(N*La,K);
+            Hallj_active = zeros(N*La,K);
             C_tot_blk = zeros(N*La,N*La);
             C_tot_blk_partial = zeros(N*La,N*La);
             
             for l = 1:La
                 Hhatallj_active((l-1)*N+1:l*N,:) = reshape(Hhat((servingAPs(l)-1)*N+1:servingAPs(l)*N,n,:),[N K]);
+                Hallj_active((l-1)*N+1:l*N,:) = reshape(H((servingAPs(l)-1)*N+1:servingAPs(l)*N,n,:),[N K]);
                 C_tot_blk((l-1)*N+1:l*N,(l-1)*N+1:l*N) = sum(C(:,:,servingAPs(l),:),4);
                 C_tot_blk_partial((l-1)*N+1:l*N,(l-1)*N+1:l*N) = sum(C(:,:,servingAPs(l),servedUEs),4);
             end
             
             %Compute P-MMSE precoding
-            w = p*(p*(Hhatallj_active(:,servedUEs)*Hhatallj_active(:,servedUEs)')+C_tot_blk_partial+eye(La*N))\Hhatallj_active(:,k);
+            w = p*((p*(Hhatallj_active(:,servedUEs)*Hhatallj_active(:,servedUEs)'+C_tot_blk_partial)+eye(La*N))\Hhatallj_active(:,k));
             
             %Apply power allocation
             w = w*sqrt(rho_central(k)/scaling_P_MMSE(k));
@@ -317,11 +320,11 @@ for n = 1:nbrOfRealizations
             
             %Compute realizations of the terms inside the expectations
             %of the signal and interference terms
-            signal_P_MMSE(k) = signal_P_MMSE(k) + (Hhatallj_active(:,k)'*w)/nbrOfRealizations;
-            interf_P_MMSE_n(:,k) = interf_P_MMSE_n(:,k) + Hhatallj_active'*w;
+            signal_P_MMSE(k) = signal_P_MMSE(k) + (Hallj_active(:,k)'*w)/nbrOfRealizations;
+            interf_P_MMSE_n(:,k) = interf_P_MMSE_n(:,k) + Hallj_active'*w;
             
             %Compute gain of the signal from UE that arrives at other UEs
-            interUserGains_P_MMSE(:,k,n) = interUserGains_P_MMSE(:,k,n) + Hhatallj_active'*w;
+            interUserGains_P_MMSE(:,k,n) = interUserGains_P_MMSE(:,k,n) + Hallj_active'*w;
             
         end
         

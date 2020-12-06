@@ -5,11 +5,12 @@ function [gainOverNoisedB,R,pilotIndex,D,APpositions,UEpositions,distances] = ge
 %This function was developed as a part of the paper:
 %
 %Emil Bjornson, Luca Sanguinetti, “Scalable Cell-Free Massive MIMO
-%Systems,” IEEE Transactions on Communications, to appear. 
+%Systems,” IEEE Transactions on Communications, vol. 68, no. 7, pp.
+%4247-4261, July 2020.
 %
 %Download article: http://arxiv.org/pdf/1908.03119
 %
-%This is version 1.0 (Last edited: 2020-04-08)
+%This is version 1.01 (Last edited: 2020-04-08)
 %
 %License: This code is licensed under the GPLv2 license. If you in any way
 %use this code for research that results in publications, please cite our

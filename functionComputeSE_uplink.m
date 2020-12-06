@@ -6,11 +6,12 @@ function [SE_MR,SE_LP_MMSE,SE_P_MMSE,SE_MMSE] = functionComputeSE_uplink(Hhat,H,
 %This function was developed as a part of the paper:
 %
 %Emil Bjornson, Luca Sanguinetti, “Scalable Cell-Free Massive MIMO
-%Systems,” IEEE Transactions on Communications, to appear. 
+%Systems,” IEEE Transactions on Communications, vol. 68, no. 7, pp.
+%4247-4261, July 2020.
 %
 %Download article: http://arxiv.org/pdf/1908.03119
 %
-%This is version 1.0 (Last edited: 2020-04-08)
+%This is version 1.1 (Last edited: 2020-12-06)
 %
 %License: This code is licensed under the GPLv2 license. If you in any way
 %use this code for research that results in publications, please cite our
@@ -221,7 +222,7 @@ for n = 1:nbrOfRealizations
             end
             
             %Compute P-MMSE combining
-            v = p*(p*(Hhatallj_active(:,servedUEs)*Hhatallj_active(:,servedUEs)')+C_tot_blk_partial+eye(La*N))\Hhatallj_active(:,k);
+            v = p*(p*(Hhatallj_active(:,servedUEs)*Hhatallj_active(:,servedUEs)'+C_tot_blk_partial)+eye(La*N))\Hhatallj_active(:,k);
 
             %Compute numerator and denominator of instantaneous SINR
             numerator = p*abs(v'*Hhatallj_active(:,k))^2;
@@ -233,7 +234,7 @@ for n = 1:nbrOfRealizations
             
             
             %Compute MMSE combining
-            v = p*(p*(Hhatallj_active*Hhatallj_active')+C_tot_blk+eye(La*N))\Hhatallj_active(:,k);
+            v = p*(p*(Hhatallj_active*Hhatallj_active'+C_tot_blk)+eye(La*N))\Hhatallj_active(:,k);
 
             %Compute numerator and denominator of instantaneous SINR
             numerator = p*abs(v'*Hhatallj_active(:,k))^2;
